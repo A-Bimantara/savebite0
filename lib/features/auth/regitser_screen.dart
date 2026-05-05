@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:savebite0/services/api_service.dart';
-import 'package:savebite0/features/auth/dashboard.screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,55 +10,19 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _isObscured = true;
-  bool _isLoading = false;
 
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   @override
   void dispose(){
     _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  Future<void> _handleLogin() async {
-    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Email dan Password anda harus diisi!"),
-          backgroundColor: Colors.orange,
-        ),
-      );
-      return;
-    }
-
-    setState(() => _isLoading = true);
-
-    final result = await ApiService.login(
-      email: _emailController.text.trim(),
-      password: _passwordController.text,
-    );
-
-    setState(() => _isLoading = false);
-
-    if (result["Success"]) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const DashboardScreen()),
-        (route) => false,
-      );
-    }else{
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result["data"] ?? "Login gagal, silahkan coba lagi"),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -93,7 +56,19 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
 
             const SizedBox(height: 20),
-        
+
+            // USERNAME SECTION
+            const Text('Username', style: TextStyle(fontWeight: FontWeight.bold)),
+            TextField(
+              controller: _usernameController,
+              decoration: InputDecoration(
+                hintText: 'Enter your username',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
             // PASSWORD SECTION
             const Text('Password', style: TextStyle(fontWeight: FontWeight.bold)),
             TextField(
@@ -121,10 +96,20 @@ class _LoginScreenState extends State<LoginScreen> {
               height: 56,
               child: 
               ElevatedButton(
-                onPressed: _isLoading ? null : _handleLogin,
-                child: _isLoading
-                ? const CircularProgressIndicator(color:Colors.white)
-                : const Text("Sign In"),
+                onPressed: () async {
+                  final result = await ApiService.register(
+                    email: _emailController.text.trim(),
+                    username: _usernameController.text.trim(),
+                    password: _passwordController.text,
+                  );
+
+                  if(result["Success"]) {
+                    print("Register Berhasil cok: ${result["data"]}");
+                  }else{
+                    print("Register Gagal: ${result["data"]}");
+                  }
+                },
+                child: Text("Register"),
               ),
             ),
           ],

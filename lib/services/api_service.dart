@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
 
-  static const String baseUrl = "https://2133-59-153-129-31.ngrok-free.app";
+  static const String baseUrl = "https://wakeful-unjocose-lida.ngrok-free.dev";
   
 // Register section
   static Future<Map<String, dynamic>> register({
@@ -63,5 +63,35 @@ class ApiService {
   } catch (e) {
     return {"Success": false, "data": "Terjadi Kesalahan: $e"};
   }
+  }
+
+  // Simpan token after lock in coy
+  static String? _accessToken;
+
+  static void setAccessToken(String token) {
+    _accessToken = token;
+  } 
+
+  // Get Profile
+  static Future<Map<String?, dynamic>>getMyProfile() async{
+    if(_accessToken==null) {
+      return{"Success":false, "message": "Belum Login"};
+    }
+
+    final response=await http.get(
+      Uri.parse("$baseUrl/users/me"),
+      headers: {
+        "Authorization" : "Bearer $_accessToken",
+        "ngrok-skip-browser-warning" : "true",
+      },
+    );
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      return {"Success": true, "data": data};
+    }else{
+      return {"Success" : false, "message": data["detail"] ?? "Gagal mengambil profil"};
+    }
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:savebite0/services/api_service.dart';
-import 'package:savebite0/features/auth/dashboard.screen.dart';
+// import 'package:savebite0/features/auth/dashboard.screen.dart';
+import 'package:savebite0/features/auth/test_data.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -44,9 +45,16 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = false);
 
     if (result["Success"]) {
+      // Simpan access token
+      ApiService.setAccessToken(result["data"]["access_token"]);
+
+      final profil=await ApiService.getMyProfile();
+      print(profil["data"]);
+      print(profil["data"]["username"]);
+
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => const DashboardScreen()),
+        MaterialPageRoute(builder: (context) => const TestDataPage()),
         (route) => false,
       );
     }else{
